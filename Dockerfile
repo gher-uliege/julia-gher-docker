@@ -41,11 +41,22 @@ RUN conda install -y ipywidgets matplotlib
 RUN conda install -c conda-forge jupyterlab-git
 RUN conda install -c conda-forge motuclient==1.8.6
 
-RUN wget -O /usr/share/emacs/site-lisp/julia-mode.el https://raw.githubusercontent.com/JuliaEditorSupport/julia-emacs/master/julia-mode.el
-
 # Install julia
 ADD install_julia.sh .
 RUN bash install_julia.sh; rm install_julia.sh
+
+
+RUN git clone https://github.com/fonsp/pluto-on-jupyterlab
+RUN cd pluto-on-jupyterlab && git checkout ea3184d && julia --eval "using Pkg; Pkg.Registry.update(); Pkg.instantiate();"
+RUN chown -R jovyan /home/jovyan/.julia
+
+RUN jupyter labextension install @jupyterlab/server-proxy && \
+    jupyter lab build && \
+    jupyter lab clean && \
+    cd pluto-on-jupyterlab && pip install . --no-cache-dir && \
+    rm -rf ~/.cache
+
+RUN wget -O /usr/share/emacs/site-lisp/julia-mode.el https://raw.githubusercontent.com/JuliaEditorSupport/julia-emacs/master/julia-mode.el
 
 # avoid warning
 # curl: /opt/conda/lib/libcurl.so.4: no version information available (required by curl)
@@ -56,10 +67,6 @@ RUN mv -i /opt/conda/lib/libcurl.so.4 /opt/conda/lib/libcurl.so.4-conda
 #RUN rm -R /opt/conda/share/jupyter/kernels/python3
 
 
-RUN git clone https://github.com/fonsp/pluto-on-jupyterlab
-RUN cd pluto-on-jupyterlab && git checkout ea3184d && julia -e "import Pkg; Pkg.Registry.update(); Pkg.instantiate();"
-
-RUN chown -R jovyan /home/jovyan/.julia
 
 # install packages as user (to that the user can temporarily update them if necessary)
 # and precompilation
@@ -68,7 +75,7 @@ RUN chown -R jovyan /home/jovyan/.julia
 USER jovyan
 
 ENV LD_LIBRARY_PATH=
-ENV JULIA_PACKAGES="CSV DataAssim DIVAnd DataStructures FFTW FileIO Glob HTTP IJulia ImageIO Images Interact Interpolations JSON Knet MAT Missings NCDatasets PackageCompiler PhysOcean PyCall PyPlot Roots SpecialFunctions StableRNGs VideoIO GeoDatasets DINCAE"
+ENV JULIA_PACKAGES="CSV DataAssim DIVAnd DataStructures FFTW FileIO Glob HTTP IJulia ImageIO Images Interact Interpolations JSON Knet MAT Missings NCDatasets PackageCompiler PhysOcean PyCall PyPlot Roots SpecialFunctions StableRNGs VideoIO GeoDatasets DINCAE Pluto PlutoUI"
 
 RUN julia --eval 'using Pkg; Pkg.add(split(ENV["JULIA_PACKAGES"]))'
 
