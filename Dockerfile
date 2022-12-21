@@ -2,7 +2,7 @@
 # sudo docker build  --tag abarth/julia-gher:$(date --utc +%Y-%m-%dT%H%M)  --tag abarth/julia-gher:latest .
 
 
-FROM jupyterhub/singleuser:2.0
+FROM jupyterhub/singleuser:3.1
 
 MAINTAINER Alexander Barth <a.barth@ulg.ac.be>
 
@@ -10,11 +10,28 @@ EXPOSE 8888
 
 USER root
 
-RUN apt-get update
-RUN apt-get install -y libnetcdf-dev netcdf-bin unzip
-RUN apt-get install -y ca-certificates curl libnlopt0 make gcc 
-RUN apt-get install -y emacs-nox git g++
-RUN apt-get install -y gfortran make perl libnetcdff-dev libopenmpi-dev openmpi-bin subversion
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        emacs-nox \
+        g++ \
+        gcc \
+        gfortran \
+        git \
+        libarpack2-dev \
+        libnetcdf-dev \
+        libnetcdff-dev \
+        libnlopt0 \
+        libopenmpi-dev \
+        make \
+        netcdf-bin \
+        openmpi-bin \
+        perl \
+        subversion \
+        tmux \
+        unzip
+
 
 ENV JUPYTER=/opt/conda/bin/jupyter
 ENV PYTHON=/opt/conda/bin/python
@@ -30,13 +47,28 @@ RUN wget -O /usr/share/emacs/site-lisp/julia-mode.el https://raw.githubuserconte
 ADD install_julia.sh .
 RUN bash install_julia.sh; rm install_julia.sh
 
+# avoid warning
+# curl: /opt/conda/lib/libcurl.so.4: no version information available (required by curl)
+RUN mv -i /opt/conda/lib/libcurl.so.4 /opt/conda/lib/libcurl.so.4-conda
+
+
+# remove unused kernel
+#RUN rm -R /opt/conda/share/jupyter/kernels/python3
+
+
+RUN git clone https://github.com/fonsp/pluto-on-jupyterlab
+RUN cd pluto-on-jupyterlab && git checkout ea3184d && julia -e "import Pkg; Pkg.Registry.update(); Pkg.instantiate();"
+
+RUN chown -R jovyan /home/jovyan/.julia
+
 # install packages as user (to that the user can temporarily update them if necessary)
 # and precompilation
+
 
 USER jovyan
 
 ENV LD_LIBRARY_PATH=
-ENV JULIA_PACKAGES="CSV DataAssim DIVAnd DataStructures FFTW FileIO Glob HTTP IJulia ImageIO Images Interact Interpolations JSON Knet MAT Missings NCDatasets PackageCompiler PhysOcean PyCall PyPlot Roots SpecialFunctions StableRNGs VideoIO GeoDatasets"
+ENV JULIA_PACKAGES="CSV DataAssim DIVAnd DataStructures FFTW FileIO Glob HTTP IJulia ImageIO Images Interact Interpolations JSON Knet MAT Missings NCDatasets PackageCompiler PhysOcean PyCall PyPlot Roots SpecialFunctions StableRNGs VideoIO GeoDatasets DINCAE"
 
 RUN julia --eval 'using Pkg; Pkg.add(split(ENV["JULIA_PACKAGES"]))'
 
@@ -44,18 +76,10 @@ RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/gher-ulg/OceanPlot.
 RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/Alexander-Barth/WebDAV.jl")'
 RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/Alexander-Barth/GeoMapping.jl")'
 RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/Alexander-Barth/ROMS.jl")'
+RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/gher-uliege/DINCAE_utils.jl")'
 
 ADD emacs /home/jovyan/.emacs
 
-USER root
-# avoid warning
-# curl: /opt/conda/lib/libcurl.so.4: no version information available (required by curl)
-RUN mv -i /opt/conda/lib/libcurl.so.4 /opt/conda/lib/libcurl.so.4-conda
-
-# remove unused kernel
-#RUN rm -R /opt/conda/share/jupyter/kernels/python3
-
-USER jovyan
 
 #RUN julia -e 'using IJulia; IJulia.installkernel("Julia with 4 CPUs",env = Dict("JULIA_NUM_THREADS" => "4"))'
 
@@ -73,10 +97,7 @@ USER jovyan
 
 #USER root
 #RUN jupyter-kernelspec remove -y -f python3
-RUN jupyter-kernelspec list
 #USER jovyan
 
-#ENV JUPYTER_ENABLE_LAB yes
-
-
-
+RUN jupyter-kernelspec list
+ENV JUPYTER_ENABLE_LAB yes
