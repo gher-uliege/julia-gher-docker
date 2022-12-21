@@ -88,8 +88,7 @@ RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/gher-uliege/DINCAE_
 
 ADD emacs /home/jovyan/.emacs
 
-
-#RUN julia -e 'using IJulia; IJulia.installkernel("Julia with 4 CPUs",env = Dict("JULIA_NUM_THREADS" => "4"))'
+RUN julia -e 'using IJulia; IJulia.installkernel("Julia with 4 CPUs",env = Dict("JULIA_NUM_THREADS" => "4"))'
 
 
 # Pre-compiled image with PackageCompiler
