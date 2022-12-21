@@ -19,6 +19,7 @@ RUN apt-get update && \
         gcc \
         gfortran \
         git \
+        less \
         libarpack2-dev \
         libnetcdf-dev \
         libnetcdff-dev \
