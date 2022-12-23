@@ -98,10 +98,21 @@ RUN julia -e 'using IJulia; IJulia.installkernel("Julia with 4 CPUs",env = Dict(
 # RUN julia -e 'using IJulia; IJulia.installkernel("Julia-precompiled", "--sysimage=/home/jovyan/.local/sysimg_custom.so")'
 # RUN julia -e 'using IJulia; IJulia.installkernel("Julia-precompiled, 4 CPUs", "--sysimage=/home/jovyan/.local/sysimg_custom.so",env = Dict("JULIA_NUM_THREADS" => "4"))'
 
+USER root
 
-#USER root
+# Install DINEOF
+RUN cd /root && \
+    git clone https://github.com/Aida-Alvera/DINEOF && \
+    cd DINEOF && \
+    cp config.mk.template config.mk && \
+    make && \
+    cp dineof /usr/local/bin
+
+# PyPlot issue
+# ImportError("/opt/julia-1.8.3/bin/../lib/julia/libstdc++.so.6: version `GLIBCXX_3.4.30' not found (required by /opt/conda/lib/python3.10/site-packages/contourpy/_contourpy.cpython-310-x86_64-linux-gnu.so)")
+RUN rm /opt/julia-1.8.3//lib/julia/libstdc++.so.6  /opt/julia-1.8.3/lib/julia/libstdc++.so.6.0.29
 #RUN jupyter-kernelspec remove -y -f python3
-#USER jovyan
+USER jovyan
 
 RUN jupyter-kernelspec list
 ENV JUPYTER_ENABLE_LAB yes
