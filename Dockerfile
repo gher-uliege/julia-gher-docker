@@ -46,9 +46,11 @@ RUN conda install -c conda-forge motuclient==1.8.6
 ADD install_julia.sh .
 RUN bash install_julia.sh; rm install_julia.sh
 
-
+# Install Pluto
 RUN git clone https://github.com/fonsp/pluto-on-jupyterlab
-RUN cd pluto-on-jupyterlab && git checkout ea3184d && julia --eval "using Pkg; Pkg.Registry.update(); Pkg.instantiate();"
+RUN cd pluto-on-jupyterlab && \
+    git checkout ea3184d && \
+    julia --eval "using Pkg; Pkg.Registry.update(); Pkg.instantiate();"
 RUN chown -R jovyan /home/jovyan/.julia
 
 RUN jupyter labextension install @jupyterlab/server-proxy && \
@@ -57,29 +59,25 @@ RUN jupyter labextension install @jupyterlab/server-proxy && \
     cd pluto-on-jupyterlab && pip install . --no-cache-dir && \
     rm -rf ~/.cache
 
+# Emacs configuration
 RUN wget -O /usr/share/emacs/site-lisp/julia-mode.el https://raw.githubusercontent.com/JuliaEditorSupport/julia-emacs/master/julia-mode.el
 
 # avoid warning
 # curl: /opt/conda/lib/libcurl.so.4: no version information available (required by curl)
 RUN mv -i /opt/conda/lib/libcurl.so.4 /opt/conda/lib/libcurl.so.4-conda
 
-
 # remove unused kernel
 #RUN rm -R /opt/conda/share/jupyter/kernels/python3
-
-
 
 # install packages as user (to that the user can temporarily update them if necessary)
 # and precompilation
 
-
 USER jovyan
 
 ENV LD_LIBRARY_PATH=
-ENV JULIA_PACKAGES="CSV DataAssim DIVAnd DataStructures FFTW FileIO Glob HTTP IJulia ImageIO Images Interact Interpolations JSON Knet MAT Missings NCDatasets PackageCompiler PhysOcean PyCall PyPlot Roots SpecialFunctions StableRNGs VideoIO GeoDatasets DINCAE Pluto PlutoUI"
+ENV JULIA_PACKAGES="CSV DataAssim DIVAnd DataStructures FFTW FileIO Glob HTTP IJulia ImageIO Images Interact Interpolations JSON Knet MAT Missings NCDatasets PackageCompiler PhysOcean PyCall PyPlot Roots SpecialFunctions StableRNGs VideoIO GeoDatasets DINCAE Pluto PlutoUI CUDA Downloads"
 
 RUN julia --eval 'using Pkg; Pkg.add(split(ENV["JULIA_PACKAGES"]))'
-
 RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/gher-ulg/OceanPlot.jl")'
 RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/Alexander-Barth/WebDAV.jl")'
 RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/Alexander-Barth/GeoMapping.jl")'
@@ -89,7 +87,6 @@ RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/gher-uliege/DINCAE_
 ADD emacs /home/jovyan/.emacs
 
 RUN julia -e 'using IJulia; IJulia.installkernel("Julia with 4 CPUs",env = Dict("JULIA_NUM_THREADS" => "4"))'
-
 
 # Pre-compiled image with PackageCompiler
 # ADD precompile_script.jl .
