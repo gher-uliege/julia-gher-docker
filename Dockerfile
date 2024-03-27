@@ -75,12 +75,11 @@ RUN mv -i /opt/conda/lib/libcurl.so.4 /opt/conda/lib/libcurl.so.4-conda
 USER jovyan
 
 ENV LD_LIBRARY_PATH=
-ENV JULIA_PACKAGES="CSV DataAssim DIVAnd DataStructures FFTW FileIO Glob HTTP IJulia ImageIO Images Interact Interpolations JSON Knet MAT Missings NCDatasets PackageCompiler PhysOcean PyCall PyPlot Roots SpecialFunctions StableRNGs VideoIO GeoDatasets DINCAE Pluto PlutoUI CUDA Downloads URIs"
+ENV JULIA_PACKAGES="CSV DataAssim DIVAnd DataStructures FFTW FileIO Glob HTTP IJulia ImageIO Images Interact Interpolations JSON MAT Missings NCDatasets PackageCompiler PhysOcean PyCall PyPlot PythonPlot Roots SpecialFunctions StableRNGs VideoIO GeoDatasets GeoMapping DINCAE Pluto PlutoUI CUDA Downloads URIs"
 
 RUN julia --eval 'using Pkg; Pkg.add(split(ENV["JULIA_PACKAGES"]))'
 RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/gher-ulg/OceanPlot.jl")'
 RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/Alexander-Barth/WebDAV.jl")'
-RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/Alexander-Barth/GeoMapping.jl")'
 RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/Alexander-Barth/ROMS.jl")'
 RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/gher-uliege/DINCAE_utils.jl")'
 
