@@ -2,7 +2,7 @@
 # sudo docker build  --tag abarth/julia-gher:$(date --utc +%Y-%m-%dT%H%M)  --tag abarth/julia-gher:latest .
 
 
-FROM jupyterhub/singleuser:3.1
+FROM jupyterhub/singleuser:4.1
 
 MAINTAINER Alexander Barth <a.barth@ulg.ac.be>
 
@@ -46,18 +46,18 @@ RUN conda install -c conda-forge motuclient==1.8.6
 ADD install_julia.sh .
 RUN bash install_julia.sh; rm install_julia.sh
 
-# Install Pluto
-RUN git clone https://github.com/fonsp/pluto-on-jupyterlab
-RUN cd pluto-on-jupyterlab && \
-    git checkout ea3184d && \
-    julia --eval "using Pkg; Pkg.Registry.update(); Pkg.instantiate();"
-RUN chown -R jovyan /home/jovyan/.julia
+# # Install Pluto
+# RUN git clone https://github.com/fonsp/pluto-on-jupyterlab
+# RUN cd pluto-on-jupyterlab && \
+#     git checkout ea3184d && \
+#     julia --eval "using Pkg; Pkg.Registry.update(); Pkg.instantiate();"
+# RUN chown -R jovyan /home/jovyan/.julia
 
-RUN jupyter labextension install @jupyterlab/server-proxy && \
-    jupyter lab build && \
-    jupyter lab clean && \
-    cd pluto-on-jupyterlab && pip install . --no-cache-dir && \
-    rm -rf ~/.cache
+# RUN jupyter labextension install @jupyterlab/server-proxy && \
+#     jupyter lab build && \
+#     jupyter lab clean && \
+#     cd pluto-on-jupyterlab && pip install . --no-cache-dir && \
+#     rm -rf ~/.cache
 
 # Emacs configuration
 RUN wget -O /usr/share/emacs/site-lisp/julia-mode.el https://raw.githubusercontent.com/JuliaEditorSupport/julia-emacs/master/julia-mode.el
