@@ -107,6 +107,7 @@ RUN cd /root && \
     make && \
     cp dineof /usr/local/bin
 
+RUN chown -R jovyan /home/jovyan/.cache/
 # PyPlot issue
 # ImportError("/opt/julia-1.8.3/bin/../lib/julia/libstdc++.so.6: version `GLIBCXX_3.4.30' not found (required by /opt/conda/lib/python3.10/site-packages/contourpy/_contourpy.cpython-310-x86_64-linux-gnu.so)")
 #RUN rm /opt/julia-1.8.3//lib/julia/libstdc++.so.6  /opt/julia-1.8.3/lib/julia/libstdc++.so.6.0.29
