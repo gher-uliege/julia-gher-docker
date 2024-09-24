@@ -40,7 +40,7 @@ ENV LD_LIBRARY_PATH=/opt/conda/lib/
 
 RUN conda install -y ipywidgets matplotlib
 RUN conda install -c conda-forge jupyterlab-git
-RUN conda install -c conda-forge motuclient==1.8.6
+RUN conda install -y conda-forge::copernicusmarine
 
 # Install julia
 ADD install_julia.sh .
