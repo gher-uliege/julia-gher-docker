@@ -4,7 +4,7 @@
 
 FROM jupyterhub/singleuser:4.1
 
-MAINTAINER Alexander Barth <a.barth@ulg.ac.be>
+MAINTAINER Alexander Barth <a.barth@uliege.be>
 
 EXPOSE 8888
 
@@ -78,7 +78,7 @@ ENV LD_LIBRARY_PATH=
 ENV JULIA_PACKAGES="CSV DataAssim DIVAnd DataStructures FFTW FileIO Glob HTTP IJulia ImageIO Images Interact Interpolations JSON MAT Missings NCDatasets PackageCompiler PhysOcean PyCall PyPlot PythonPlot Roots SpecialFunctions StableRNGs VideoIO GeoDatasets GeoMapping DINCAE Pluto PlutoUI CUDA Downloads URIs DSP"
 
 RUN julia --eval 'using Pkg; Pkg.add(split(ENV["JULIA_PACKAGES"]))'
-RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/gher-ulg/OceanPlot.jl")'
+RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/gher-uliege/OceanPlot.jl")'
 RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/Alexander-Barth/WebDAV.jl")'
 RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/Alexander-Barth/ROMS.jl")'
 RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/gher-uliege/DINCAE_utils.jl")'

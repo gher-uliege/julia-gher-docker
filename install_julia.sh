@@ -1,6 +1,6 @@
 #!/bin/bash
 
-JULIA_VERSION=1.10.5
+JULIA_VERSION=1.11.1
 # array with major, minor and revision number
 JULIA_VERSION_PARTS=( ${JULIA_VERSION//./ } )
 # just major and minor number
@@ -14,8 +14,3 @@ tar -xvf julia-$JULIA_VERSION-linux-x86_64.tar.gz
 rm julia-$JULIA_VERSION-linux-x86_64.tar.gz
 
 ln -s /opt/julia-$JULIA_VERSION/bin/julia /usr/local/bin
-
-
-
-
-
