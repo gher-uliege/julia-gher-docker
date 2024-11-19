@@ -116,3 +116,5 @@ USER jovyan
 
 RUN jupyter-kernelspec list
 ENV JUPYTER_ENABLE_LAB yes
+# https://github.com/open-mpi/ompi/issues/4948#issuecomment-395468231
+ENV OMPI_MCA_btl_vader_single_copy_mechanism=none
