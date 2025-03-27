@@ -2,7 +2,7 @@
 # sudo docker build  --tag abarth/julia-gher:$(date --utc +%Y-%m-%dT%H%M)  --tag abarth/julia-gher:latest .
 
 
-FROM jupyterhub/singleuser:4.1
+FROM jupyterhub/singleuser:5.2
 
 MAINTAINER Alexander Barth <a.barth@uliege.be>
 
