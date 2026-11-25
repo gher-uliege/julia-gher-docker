@@ -2,7 +2,7 @@
 # sudo docker build  --tag abarth/julia-gher:$(date --utc +%Y-%m-%dT%H%M)  --tag abarth/julia-gher:latest .
 
 
-FROM jupyterhub/singleuser:4.1
+FROM jupyterhub/singleuser:5.2
 
 MAINTAINER Alexander Barth <a.barth@ulg.ac.be>
 
@@ -38,9 +38,7 @@ ENV JUPYTER=/opt/conda/bin/jupyter
 ENV PYTHON=/opt/conda/bin/python
 ENV LD_LIBRARY_PATH=/opt/conda/lib/
 
-RUN conda install -y ipywidgets matplotlib
-RUN conda install -c conda-forge jupyterlab-git
-RUN conda install -y conda-forge::copernicusmarine
+RUN conda install -y ipywidgets matplotlib conda-forge::jupyterlab-git conda-forge::copernicusmarine
 
 # Install julia
 ADD install_julia.sh .
@@ -51,7 +49,7 @@ RUN bash install_julia.sh; rm install_julia.sh
 # RUN cd pluto-on-jupyterlab && \
 #     git checkout ea3184d && \
 #     julia --eval "using Pkg; Pkg.Registry.update(); Pkg.instantiate();"
-# RUN chown -R jovyan /home/jovyan/.julia
+RUN chown -R jovyan /home/jovyan/.julia
 
 # RUN jupyter labextension install @jupyterlab/server-proxy && \
 #     jupyter lab build && \
@@ -77,11 +75,14 @@ USER jovyan
 ENV LD_LIBRARY_PATH=
 ENV JULIA_PACKAGES="CSV DataAssim DIVAnd DataStructures FFTW FileIO Glob HTTP IJulia ImageIO Images Interact Interpolations JSON MAT Missings NCDatasets PackageCompiler PhysOcean PyCall PyPlot PythonPlot Roots SpecialFunctions StableRNGs VideoIO GeoDatasets GeoMapping DINCAE Pluto PlutoUI CUDA Downloads URIs DSP"
 
+ENV JULIA_PKG_PRECOMPILE_AUTO=0
 RUN julia --eval 'using Pkg; Pkg.add(split(ENV["JULIA_PACKAGES"]))'
 RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/gher-ulg/OceanPlot.jl")'
 RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/Alexander-Barth/WebDAV.jl")'
 RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/Alexander-Barth/ROMS.jl")'
 RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/gher-uliege/DINCAE_utils.jl")'
+ENV JULIA_PKG_PRECOMPILE_AUTO=1
+RUN julia --eval 'using Pkg; Pkg.precompile()'
 
 ADD emacs /home/jovyan/.emacs
 
@@ -115,6 +116,6 @@ RUN chown -R jovyan /home/jovyan/.cache/
 USER jovyan
 
 RUN jupyter-kernelspec list
-ENV JUPYTER_ENABLE_LAB yes
+ENV JUPYTER_ENABLE_LAB=yes
 # https://github.com/open-mpi/ompi/issues/4948#issuecomment-395468231
 ENV OMPI_MCA_btl_vader_single_copy_mechanism=none
