@@ -52,7 +52,7 @@ RUN bash install_julia.sh; rm install_julia.sh
 # RUN cd pluto-on-jupyterlab && \
 #     git checkout ea3184d && \
 #     julia --eval "using Pkg; Pkg.Registry.update(); Pkg.instantiate();"
-RUN chown -R jovyan /home/jovyan/.julia
+# RUN chown -R jovyan /home/jovyan/.julia
 
 # RUN jupyter labextension install @jupyterlab/server-proxy && \
 #     jupyter lab build && \
@@ -82,6 +82,7 @@ ENV JULIA_PACKAGES="CSV DataAssim DataStructures FFTW FileIO Glob HTTP IJulia Im
 
 # CSV@1 blocked due to https://github.com/JuliaGeo/GeoJSON.jl/issues/105
 
+# defer precompilation once all packages have been installed
 ENV JULIA_PKG_PRECOMPILE_AUTO=0
 RUN julia --eval 'using Pkg; Pkg.add(split(ENV["JULIA_PACKAGES"]))'
 RUN julia --eval 'using Pkg; Pkg.status(outdated=true,mode=PKGMODE_MANIFEST)'
