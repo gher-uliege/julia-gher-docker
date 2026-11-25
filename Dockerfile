@@ -4,7 +4,7 @@
 
 FROM jupyterhub/singleuser:5.2
 
-MAINTAINER Alexander Barth <a.barth@ulg.ac.be>
+MAINTAINER Alexander Barth <a.barth@uliege.be>
 
 EXPOSE 8888
 
@@ -31,8 +31,11 @@ RUN apt-get update && \
         perl \
         subversion \
         tmux \
-        unzip
-
+        unzip \
+        pandoc \
+        texlive-xetex \
+        texlive-fonts-recommended \
+        texlive-plain-generic
 
 ENV JUPYTER=/opt/conda/bin/jupyter
 ENV PYTHON=/opt/conda/bin/python
@@ -73,16 +76,25 @@ RUN mv -i /opt/conda/lib/libcurl.so.4 /opt/conda/lib/libcurl.so.4-conda
 USER jovyan
 
 ENV LD_LIBRARY_PATH=
-ENV JULIA_PACKAGES="CSV DataAssim DIVAnd DataStructures FFTW FileIO Glob HTTP IJulia ImageIO Images Interact Interpolations JSON MAT Missings NCDatasets PackageCompiler PhysOcean PyCall PyPlot PythonPlot Roots SpecialFunctions StableRNGs VideoIO GeoDatasets GeoMapping DINCAE Pluto PlutoUI CUDA Downloads URIs DSP"
+ENV JULIA_PACKAGES="CSV DataAssim DataStructures FFTW FileIO Glob HTTP IJulia ImageIO Images Interpolations JSON MAT Missings NCDatasets PackageCompiler PhysOcean PyCall PyPlot Roots SpecialFunctions StableRNGs VideoIO GeoDatasets GeoMapping DIVAnd DINCAE Downloads URIs DSP CairoMakie  "
+# removed PythonPlot Pluto PlutoUI CUDA
+
+
+# CSV@1 blocked due to https://github.com/JuliaGeo/GeoJSON.jl/issues/105
 
 ENV JULIA_PKG_PRECOMPILE_AUTO=0
 RUN julia --eval 'using Pkg; Pkg.add(split(ENV["JULIA_PACKAGES"]))'
-RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/gher-ulg/OceanPlot.jl")'
-RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/Alexander-Barth/WebDAV.jl")'
+RUN julia --eval 'using Pkg; Pkg.status(outdated=true,mode=PKGMODE_MANIFEST)'
+
+#RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/gher-uliege/DIVAnd.jl")'
+RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/gher-uliege/OceanPlot.jl")'
+#RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/Alexander-Barth/WebDAV.jl")'
 RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/Alexander-Barth/ROMS.jl")'
 RUN julia --eval 'using Pkg; Pkg.add(url="https://github.com/gher-uliege/DINCAE_utils.jl")'
 ENV JULIA_PKG_PRECOMPILE_AUTO=1
 RUN julia --eval 'using Pkg; Pkg.precompile()'
+
+RUN julia --eval 'using Pkg; Pkg.status(outdated=true,mode=PKGMODE_MANIFEST)'
 
 ADD emacs /home/jovyan/.emacs
 
@@ -109,6 +121,9 @@ RUN cd /root && \
     cp dineof /usr/local/bin
 
 RUN chown -R jovyan /home/jovyan/.cache/
+
+RUN jupyter labextension disable "@jupyterlab/apputils-extension:announcements"
+
 # PyPlot issue
 # ImportError("/opt/julia-1.8.3/bin/../lib/julia/libstdc++.so.6: version `GLIBCXX_3.4.30' not found (required by /opt/conda/lib/python3.10/site-packages/contourpy/_contourpy.cpython-310-x86_64-linux-gnu.so)")
 #RUN rm /opt/julia-1.8.3//lib/julia/libstdc++.so.6  /opt/julia-1.8.3/lib/julia/libstdc++.so.6.0.29

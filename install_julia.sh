@@ -1,27 +1,20 @@
 #!/bin/bash
 
-curl -fsSL https://install.julialang.org | sh -s -- --yes --path /opt/julia
+##curl -fsSL https://install.julialang.org | sh -s -- --yes --path /opt/julia
+##ln -s /opt/julia/bin/* /usr/local/bin
+##chown -R jovyan /home/jovyan/.julia
 
-ln -s /opt/julia/bin/* /usr/local/bin
-chown -R jovyan /home/jovyan/.julia
+JULIA_VERSION=1.13.4
+# array with major, minor and revision number
+JULIA_VERSION_PARTS=( ${JULIA_VERSION//./ } )
+# just major and minor number
+JULIA_VERSION_SHORT=${JULIA_VERSION_PARTS[0]}.${JULIA_VERSION_PARTS[1]}
 
+mkdir /opt
+cd /opt
+wget https://julialang-s3.julialang.org/bin/linux/x64/$JULIA_VERSION_SHORT/julia-$JULIA_VERSION-linux-x86_64.tar.gz
 
-# JULIA_VERSION=1.10.5
-# # array with major, minor and revision number
-# JULIA_VERSION_PARTS=( ${JULIA_VERSION//./ } )
-# # just major and minor number
-# JULIA_VERSION_SHORT=${JULIA_VERSION_PARTS[0]}.${JULIA_VERSION_PARTS[1]}
+tar -xvf julia-$JULIA_VERSION-linux-x86_64.tar.gz
+rm julia-$JULIA_VERSION-linux-x86_64.tar.gz
 
-# mkdir /opt
-# cd /opt
-# wget https://julialang-s3.julialang.org/bin/linux/x64/$JULIA_VERSION_SHORT/julia-$JULIA_VERSION-linux-x86_64.tar.gz
-
-# tar -xvf julia-$JULIA_VERSION-linux-x86_64.tar.gz
-# rm julia-$JULIA_VERSION-linux-x86_64.tar.gz
-
-# ln -s /opt/julia-$JULIA_VERSION/bin/julia /usr/local/bin
-
-
-
-
-
+ln -s /opt/julia-$JULIA_VERSION/bin/julia /usr/local/bin
